@@ -21,6 +21,9 @@ class PUZZELPLATFORMS_API IMenuInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	
+	//Pure virtual function, need to be overridden by sub class
+	virtual void Host() = 0;
+	virtual void Join(const FString& Address) = 0;
+	virtual void QuitToMainMenu() = 0;
 	
 };

@@ -2,7 +2,9 @@
 
 #include "MainMenu.h"
 #include "Components/Button.h"
-
+#include "Components/WidgetSwitcher.h"
+#include "Components/EditableTextBox.h"
+#include "MenuInterface.h"
 
 bool UMainMenu::Initialize()
 {
@@ -10,6 +12,10 @@ bool UMainMenu::Initialize()
 	if (Success)
 	{
 		HostButton->OnClicked.AddDynamic(this, &UMainMenu::HostServer);
+		JoinMenuButton->OnClicked.AddDynamic(this, &UMainMenu::OpenJoinMenu);
+		BackToMainButton->OnClicked.AddDynamic(this, &UMainMenu::OpenMainMenu);
+		JoinButton->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
+		QuitGameButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
 		return true;
 	}
 	else
@@ -18,5 +24,39 @@ bool UMainMenu::Initialize()
 
 void UMainMenu::HostServer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Starting Server!"));
+	if (MenuInterface)
+	{
+		MenuInterface->Host();
+	}
+}
+
+void UMainMenu::JoinServer()
+{
+	if (MenuInterface)
+	{
+		FString Address = IPTextBox->GetText().ToString();
+		if(!Address.IsEmpty())
+			MenuInterface->Join(Address);
+	}
+}
+
+void UMainMenu::OpenJoinMenu()
+{
+	MenuSwitcher->SetActiveWidget(JoinMenu);
+}
+
+void UMainMenu::OpenMainMenu()
+{
+	MenuSwitcher->SetActiveWidget(MainMenu);
+}
+
+void UMainMenu::QuitGame()
+{
+	UWorld* World = GetWorld();
+	if (!ensure(World)) { return; }
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (!ensure(PlayerController)) { return; }
+
+	PlayerController->ConsoleCommand("quit");
 }
